@@ -1,9 +1,13 @@
 import Foundation
 
 #if canImport(AppKit)
-import class AppKit.NSFont
+import class AppKit.Font
 import class AppKit.NSTextAttachment
 import class AppKit.NSTextList
+typealias Font = NSFont
+#elseif canImport(UIKit)
+import UIKit
+typealias Font = UIFont
 #endif
 
 import CommonMark
@@ -58,8 +62,8 @@ extension BlockQuote {
     override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var attributes = attributes
 
-        let font = attributes[.font] as? NSFont ?? NSFont.systemFont(ofSize: NSFont.systemFontSize)
-        attributes[.font] = font.addingSymbolicTraits(.italic)
+        let font = attributes[.font] as? Font ?? Font.systemFont(ofSize: Font.systemFontSize)
+        attributes[.font] = font.addingSymbolicTraits(.traitItalic)
 
         return attributes
     }
@@ -69,7 +73,7 @@ extension CodeBlock {
     override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var attributes = attributes
 
-        let font = attributes[.font] as? NSFont ?? NSFont.systemFont(ofSize: NSFont.systemFontSize)
+        let font = attributes[.font] as? Font ?? Font.systemFont(ofSize: Font.systemFontSize)
         attributes[.font] = font.monospaced
 
         return attributes
@@ -93,9 +97,9 @@ extension Heading {
     override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var attributes = attributes
 
-        let font = attributes[.font] as? NSFont ?? NSFont.systemFont(ofSize: NSFont.systemFontSize)
+        let font = attributes[.font] as? Font ?? Font.systemFont(ofSize: Font.systemFontSize)
 
-        attributes[.font] = NSFont(name: font.fontName, size: font.pointSize * fontSizeMultiplier)?.addingSymbolicTraits(.bold)
+        attributes[.font] = Font(name: font.fontName, size: font.pointSize * fontSizeMultiplier)?.addingSymbolicTraits(.traitBold)
 
         return attributes
     }
@@ -120,6 +124,7 @@ extension List.Item {
     fileprivate func attributedString(in list: List, at position: Int, attributes: [NSAttributedString.Key: Any], attachments: [String: NSTextAttachment]) throws -> NSAttributedString {
 
         let delimiter: String
+#if canImport(AppKit)
         if #available(OSX 10.13, *) {
             let format: NSTextList.MarkerFormat
             switch (list.kind, list.markerLevel) {
@@ -135,7 +140,10 @@ extension List.Item {
         } else {
             delimiter = list.kind == .ordered ? "\(position + 1)." : "•"
         }
-
+#else
+        delimiter = list.kind == .ordered ? "\(position + 1)." : "•"
+#endif
+        
         let indentation = String(repeating: "\t", count: list.nestingLevel)
 
         let mutableAttributedString = NSMutableAttributedString(string: indentation + delimiter + " ", attributes: attributes)
@@ -150,7 +158,7 @@ extension Code {
     override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var attributes = attributes
 
-        let font = attributes[.font] as? NSFont ?? NSFont.systemFont(ofSize: NSFont.systemFontSize)
+        let font = attributes[.font] as? Font ?? Font.systemFont(ofSize: Font.systemFontSize)
         attributes[.font] = font.monospaced
 
         return attributes
@@ -161,8 +169,8 @@ extension Emphasis {
     override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var attributes = attributes
 
-        let font = attributes[.font] as? NSFont ?? NSFont.systemFont(ofSize: NSFont.systemFontSize)
-        attributes[.font] = font.addingSymbolicTraits(.italic)
+        let font = attributes[.font] as? Font ?? Font.systemFont(ofSize: Font.systemFontSize)
+        attributes[.font] = font.addingSymbolicTraits(.traitItalic)
 
         return attributes
     }
@@ -183,11 +191,11 @@ extension Link {
         if let urlString = urlString, let url = URL(string: urlString) {
             attributes[.link] = url
         }
-
+#if canImport(AppKit)
         if let title = title {
             attributes[.toolTip] = title
         }
-
+#endif
         return attributes
     }
 }
@@ -196,8 +204,8 @@ extension Strong {
     override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var attributes = attributes
 
-        let font = attributes[.font] as? NSFont ?? NSFont.systemFont(ofSize: NSFont.systemFontSize)
-        attributes[.font] = font.addingSymbolicTraits(.bold)
+        let font = attributes[.font] as? Font ?? Font.systemFont(ofSize: Font.systemFontSize)
+        attributes[.font] = font.addingSymbolicTraits(.traitBold)
 
         return attributes
     }

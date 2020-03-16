@@ -1,5 +1,6 @@
-import class AppKit.NSAttributedString
-import class AppKit.NSMutableAttributedString
+// import class AppKit.NSAttributedString
+// import class AppKit.NSMutableAttributedString
+import Foundation
 
 extension Array where Element == NSAttributedString {
     func joined(separator: String? = nil) -> NSAttributedString {

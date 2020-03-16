@@ -2,6 +2,8 @@ import Foundation
 
 #if canImport(AppKit)
 import class AppKit.NSTextAttachment
+#elseif canImport(UIKit)
+import UIKit
 #endif
 
 import CommonMark
@@ -22,8 +24,12 @@ extension NSAttributedString {
     }
     
     convenience init?(html: String, attributes: [NSAttributedString.Key: Any]) {
-        guard let data = html.data(using: .utf8) else { return nil }
-        
+
+        // FIXME: jmj
+        self.init(string: html)
+
+        //  guard let data = html.data(using: .utf8) else { return nil }
+         /*
         let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
             .documentType: NSAttributedString.DocumentType.html,
             .characterEncoding: String.Encoding.utf8.rawValue
@@ -37,6 +43,7 @@ extension NSAttributedString {
         mutableAttributedString.addAttributes(attributes, range: NSMakeRange(0, mutableAttributedString.length))
         
         self.init(attributedString: mutableAttributedString)
+ */
     }
 }
 

@@ -5,6 +5,12 @@ import PackageDescription
 
 let package = Package(
     name: "CommonMarkAttributedString",
+    platforms: [
+        // specify each minimum deployment requirement,
+        //otherwise the platform default minimum is used.
+       .iOS(.v10),
+       .macOS(.v10_15),
+    ],
     products: [
         .library(
             name: "CommonMarkAttributedString",
