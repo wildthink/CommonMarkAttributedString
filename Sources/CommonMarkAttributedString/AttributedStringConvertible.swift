@@ -1,10 +1,12 @@
 import Foundation
 
 #if canImport(AppKit)
-import class AppKit.Font
+import class AppKit.NSFont
 import class AppKit.NSTextAttachment
 import class AppKit.NSTextList
+
 typealias Font = NSFont
+
 #elseif canImport(UIKit)
 import UIKit
 typealias Font = UIFont
@@ -12,7 +14,7 @@ typealias Font = UIFont
 
 import CommonMark
 
-protocol AttributedStringConvertible {
+public protocol AttributedStringConvertible {
     func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any]
     func attributedString(attributes: [NSAttributedString.Key: Any], attachments: [String: NSTextAttachment]) throws -> NSAttributedString
 }
@@ -20,11 +22,14 @@ protocol AttributedStringConvertible {
 // MARK: -
 
 extension Node: AttributedStringConvertible {
-    @objc func attributes(with attributes: [NSAttributedString.Key : Any]) -> [NSAttributedString.Key : Any] {
+    
+    @objc public
+    func attributes(with attributes: [NSAttributedString.Key : Any]) -> [NSAttributedString.Key : Any] {
         return attributes
     }
 
-    @objc func attributedString(attributes: [NSAttributedString.Key: Any], attachments: [String: NSTextAttachment]) throws -> NSAttributedString {
+    @objc public
+    func attributedString(attributes: [NSAttributedString.Key: Any], attachments: [String: NSTextAttachment]) throws -> NSAttributedString {
         let attributes = self.attributes(with: attributes)
 
         switch self {
@@ -59,18 +64,23 @@ extension Node: AttributedStringConvertible {
 // MARK: Block Elements
 
 extension BlockQuote {
-    override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
+    public override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var attributes = attributes
 
         let font = attributes[.font] as? Font ?? Font.systemFont(ofSize: Font.systemFontSize)
+        #if canImport(AppKit)
+        attributes[.font] = font.addingSymbolicTraits(.italic)
+        #else
         attributes[.font] = font.addingSymbolicTraits(.traitItalic)
+        #endif
+
 
         return attributes
     }
 }
 
 extension CodeBlock {
-    override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
+    public override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var attributes = attributes
 
         let font = attributes[.font] as? Font ?? Font.systemFont(ofSize: Font.systemFontSize)
@@ -94,12 +104,16 @@ extension Heading {
         }
     }
 
-    override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
+    public override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var attributes = attributes
 
         let font = attributes[.font] as? Font ?? Font.systemFont(ofSize: Font.systemFontSize)
 
+        #if canImport(AppKit)
+        attributes[.font] = Font(name: font.fontName, size: font.pointSize * fontSizeMultiplier)?.addingSymbolicTraits(.bold)
+        #else
         attributes[.font] = Font(name: font.fontName, size: font.pointSize * fontSizeMultiplier)?.addingSymbolicTraits(.traitBold)
+        #endif
 
         return attributes
     }
@@ -155,7 +169,7 @@ extension List.Item {
 // MARK: Inline Elements
 
 extension Code {
-    override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
+    public override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var attributes = attributes
 
         let font = attributes[.font] as? Font ?? Font.systemFont(ofSize: Font.systemFontSize)
@@ -166,18 +180,22 @@ extension Code {
 }
 
 extension Emphasis {
-    override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
+    public override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var attributes = attributes
 
         let font = attributes[.font] as? Font ?? Font.systemFont(ofSize: Font.systemFontSize)
+        #if canImport(AppKit)
+        attributes[.font] = font.addingSymbolicTraits(.italic)
+        #else
         attributes[.font] = font.addingSymbolicTraits(.traitItalic)
+        #endif
 
         return attributes
     }
 }
 
 extension Image {
-    override func attributedString(attributes: [NSAttributedString.Key: Any], attachments: [String: NSTextAttachment]) throws -> NSAttributedString {
+    public override func attributedString(attributes: [NSAttributedString.Key: Any], attachments: [String: NSTextAttachment]) throws -> NSAttributedString {
         guard let urlString = urlString else { return NSAttributedString() }
         guard let attachment = attachments[urlString] else { fatalError("missing attachment for \(urlString)") }
         return NSAttributedString(attachment: attachment)
@@ -185,7 +203,7 @@ extension Image {
 }
 
 extension Link {
-    override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
+    public override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var attributes = attributes
 
         if let urlString = urlString, let url = URL(string: urlString) {
@@ -201,18 +219,22 @@ extension Link {
 }
 
 extension Strong {
-    override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
+    public override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
         var attributes = attributes
 
         let font = attributes[.font] as? Font ?? Font.systemFont(ofSize: Font.systemFontSize)
+        #if canImport(AppKit)
+        attributes[.font] = font.addingSymbolicTraits(.bold)
+        #else
         attributes[.font] = font.addingSymbolicTraits(.traitBold)
+        #endif
 
         return attributes
     }
 }
 
 extension Text {
-    override func attributedString(attributes: [NSAttributedString.Key: Any], attachments: [String: NSTextAttachment]) throws -> NSAttributedString {
+    public override func attributedString(attributes: [NSAttributedString.Key: Any], attachments: [String: NSTextAttachment]) throws -> NSAttributedString {
         return NSAttributedString(string: literal ?? "", attributes: attributes)
     }
 }
