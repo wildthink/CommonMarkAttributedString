@@ -38,8 +38,8 @@ extension Node: AttributedStringConvertible {
         case is HardLineBreak, is ThematicBreak:
             return NSAttributedString(string: "\u{2028}", attributes: attributes)
         case let html as HTML:
-            return try html.attributedString(with: attributes)
-//            return NSAttributedString(string: html.literal ?? "", attributes: attributes)
+//            return try html.attributedString(with: attributes)
+            return NSAttributedString(string: html.literal ?? "", attributes: attributes)
         case let literal as Literal:
             return NSAttributedString(string: literal.literal ?? "", attributes: attributes)
         case let container as ContainerOfBlocks:
@@ -170,6 +170,32 @@ extension List.Item {
 }
 
 // MARK: Inline Elements
+
+// jmj
+extension HTML {
+    public override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
+        var attributes = attributes
+
+        guard var html = self.literal else { return attributes }
+        html.removeAll(where: { "</>".contains($0)})
+        let words = html.split(separator: " ", maxSplits: 1)
+        
+        guard words.count == 2 else { return attributes }
+        
+        let key: NSAttributedString.Key
+        
+        switch words[0] {
+        case "value":
+            key = .value
+        case "key":
+            key = .valueKey
+        default:
+            key = NSAttributedString.Key(String(words[0]))
+        }
+        attributes[key] = words[1]
+        return attributes
+    }
+}
 
 extension Code {
     public override func attributes(with attributes: [NSAttributedString.Key: Any]) -> [NSAttributedString.Key: Any] {
