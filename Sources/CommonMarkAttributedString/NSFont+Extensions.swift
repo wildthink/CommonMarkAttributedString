@@ -26,7 +26,7 @@ extension NSFont {
 import UIKit
 
 extension Font {
-    func addingSymbolicTraits(_ traits: FontDescriptor.SymbolicTraits) -> Font? {
+    func addingSymbolicTraits(_ traits: UIFontDescriptor.SymbolicTraits) -> Font? {
         var symbolicTraits = fontDescriptor.symbolicTraits
         symbolicTraits.insert(traits)
         guard let fd = fontDescriptor.withSymbolicTraits(symbolicTraits) else { return nil }

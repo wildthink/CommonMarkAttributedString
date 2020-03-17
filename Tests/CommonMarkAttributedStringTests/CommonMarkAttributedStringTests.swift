@@ -15,6 +15,19 @@ final class CommonMarkAttributedStringTests: XCTestCase {
         XCTAssertEqual(attributedString.string, "A bold way to add emphasis to your code")
     }
 
+    func testHTMLExample() throws {
+        let commonmark = "A *bold* <key skeleton/> way to add __emphasis__ to your `code`"
+
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 24.0),
+            .foregroundColor: NSColor.systemBlue,
+        ]
+
+        let attributedString = try NSAttributedString(commonmark: commonmark, attributes: attributes)
+
+        XCTAssertEqual(attributedString.string, "A bold <key skeleton/> way to add emphasis to your code")
+    }
+
     func testUHDR() throws {
         let commonmark = #"""
         # [Universal Declaration of Human Rights][uhdr]

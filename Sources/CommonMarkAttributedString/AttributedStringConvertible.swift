@@ -37,6 +37,9 @@ extension Node: AttributedStringConvertible {
             return NSAttributedString(string: " ", attributes: attributes)
         case is HardLineBreak, is ThematicBreak:
             return NSAttributedString(string: "\u{2028}", attributes: attributes)
+        case let html as HTML:
+            return try html.attributedString(with: attributes)
+//            return NSAttributedString(string: html.literal ?? "", attributes: attributes)
         case let literal as Literal:
             return NSAttributedString(string: literal.literal ?? "", attributes: attributes)
         case let container as ContainerOfBlocks:
@@ -47,11 +50,11 @@ extension Node: AttributedStringConvertible {
 
             return try container.children.map { try $0.attributedString(attributes: attributes, attachments: attachments) }.joined(separator: "\u{2029}")
         case let container as ContainerOfInlineElements:
-            guard !container.children.contains(where: { $0 is HTML }) else {
-                let html = try Document(container.description).render(format: .html)
-                return NSAttributedString(html: html, attributes: attributes) ?? NSAttributedString()
-            }
-
+            // jmj
+//            guard !container.children.contains(where: { $0 is HTML }) else {
+//                let html = try Document(container.description).render(format: .html)
+//                return NSAttributedString(html: html, attributes: attributes) ?? NSAttributedString()
+//            }
             return try container.children.map { try $0.attributedString(attributes: attributes, attachments: attachments) }.joined()
         case let list as List:
             return try list.children.enumerated().map { try $1.attributedString(in: list, at: $0, attributes: attributes, attachments: attachments) }.joined(separator: "\u{2029}")
