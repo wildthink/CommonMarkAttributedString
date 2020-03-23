@@ -186,9 +186,9 @@ extension HTML {
         
         switch words[0] {
         case "value":
-            key = .value
+            key = NSAttributedString.Key(rawValue: "ObjectValue")
         case "key":
-            key = .valueKey
+            key = NSAttributedString.Key(rawValue: "ObjectValueKey")
         default:
             key = NSAttributedString.Key(String(words[0]))
         }
